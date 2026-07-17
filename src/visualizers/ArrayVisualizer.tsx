@@ -4,9 +4,9 @@ import { cn } from '@/utils/cn';
 
 /** Color + label for each highlight state, shown in the on-canvas legend. */
 const HIGHLIGHTS: Record<HighlightKind, { bar: string; label: string }> = {
-  compare: { bar: 'bg-amber-400', label: 'Comparing' },
+  compare: { bar: 'bg-amber-300', label: 'Comparing' },
   swap: { bar: 'bg-rose-500', label: 'Swapping' },
-  sorted: { bar: 'bg-emerald-500', label: 'Sorted' },
+  sorted: { bar: 'bg-emerald-400', label: 'Sorted (in place)' },
   pivot: { bar: 'bg-fuchsia-500', label: 'Pivot' },
   active: { bar: 'bg-sky-400', label: 'Active' },
   found: { bar: 'bg-emerald-400', label: 'Found' },
@@ -15,27 +15,28 @@ const HIGHLIGHTS: Record<HighlightKind, { bar: string; label: string }> = {
 };
 
 /**
- * Map a value to a color so each column visually encodes its magnitude: small
- * values are cool (blue), large values warm (magenta). A sorted array therefore
- * appears as a smooth left-to-right gradient.
+ * Map a value to a vivid color so each column encodes its magnitude: short bars
+ * are blue, growing through purple, pink, red and orange up to yellow for the
+ * tallest. The hue sweeps past 360° so it never passes through green — green is
+ * reserved for bars that have settled into their final sorted position.
  */
 function valueColor(value: number, max: number): string {
   const t = max > 0 ? value / max : 0;
-  const hue = 210 + t * 130; // 210° (blue) → 340° (pink/magenta)
-  return `hsl(${hue} 75% 58%)`;
+  const hue = (222 + t * 188) % 360; // blue → pink → orange → yellow
+  return `hsl(${hue} 88% 60%)`;
 }
 
 function ArrayVisualizer({ frame }: VisualizerProps) {
   const { array, highlights, pointers, description } = frame as ArrayFrame;
   const max = Math.max(1, ...array);
-  const showValues = array.length <= 32;
+  const showValues = array.length <= 20;
 
   // Only surface legend entries that are actually present in this frame.
   const usedKinds = Array.from(new Set(Object.values(highlights))) as HighlightKind[];
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex flex-1 items-end justify-center gap-[2px] px-2 pb-2 sm:gap-1">
+      <div className="flex flex-1 items-end justify-center gap-[2px] px-3 pb-2">
         {array.map((value, i) => {
           const kind = highlights[i];
           return (
@@ -48,13 +49,15 @@ function ArrayVisualizer({ frame }: VisualizerProps) {
             >
               <div
                 className={cn(
-                  'w-full rounded-t-md transition-colors duration-150',
+                  'w-full rounded-t-[3px] transition-colors duration-200',
                   // Highlighted bars use their state color; otherwise the bar is
-                  // tinted by its value so the columns read as a gradient.
-                  kind && HIGHLIGHTS[kind].bar
+                  // tinted by its value so the columns read as a vivid gradient.
+                  kind && HIGHLIGHTS[kind].bar,
+                  // A soft glow makes bars visibly "click" into place when settled.
+                  kind === 'sorted' && 'shadow-[0_0_10px_rgba(52,211,153,0.55)]'
                 )}
                 style={{
-                  height: `${(value / max) * 100}%`,
+                  height: `${Math.max(2, (value / max) * 100)}%`,
                   ...(kind ? {} : { backgroundColor: valueColor(value, max) }),
                 }}
               />
