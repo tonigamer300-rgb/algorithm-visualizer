@@ -14,6 +14,17 @@ const HIGHLIGHTS: Record<HighlightKind, { bar: string; label: string }> = {
   min: { bar: 'bg-purple-400', label: 'Current min' },
 };
 
+/**
+ * Map a value to a color so each column visually encodes its magnitude: small
+ * values are cool (blue), large values warm (magenta). A sorted array therefore
+ * appears as a smooth left-to-right gradient.
+ */
+function valueColor(value: number, max: number): string {
+  const t = max > 0 ? value / max : 0;
+  const hue = 210 + t * 130; // 210° (blue) → 340° (pink/magenta)
+  return `hsl(${hue} 75% 58%)`;
+}
+
 function ArrayVisualizer({ frame }: VisualizerProps) {
   const { array, highlights, pointers, description } = frame as ArrayFrame;
   const max = Math.max(1, ...array);
@@ -38,9 +49,14 @@ function ArrayVisualizer({ frame }: VisualizerProps) {
               <div
                 className={cn(
                   'w-full rounded-t-md transition-colors duration-150',
-                  kind ? HIGHLIGHTS[kind].bar : 'bg-slate-600'
+                  // Highlighted bars use their state color; otherwise the bar is
+                  // tinted by its value so the columns read as a gradient.
+                  kind && HIGHLIGHTS[kind].bar
                 )}
-                style={{ height: `${(value / max) * 100}%` }}
+                style={{
+                  height: `${(value / max) * 100}%`,
+                  ...(kind ? {} : { backgroundColor: valueColor(value, max) }),
+                }}
               />
               {showValues && (
                 <span className="mt-1 text-[10px] tabular-nums text-slate-400">{value}</span>
