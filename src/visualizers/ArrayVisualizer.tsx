@@ -36,45 +36,42 @@ function ArrayVisualizer({ frame }: VisualizerProps) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex flex-1 items-end justify-center gap-[2px] px-3 pb-2">
+      <div className="flex min-h-0 flex-1 items-stretch justify-center gap-[2px] px-3 pb-1">
         {array.map((value, i) => {
           const kind = highlights[i];
           return (
-            <motion.div
-              key={i}
-              layout
-              transition={{ type: 'spring', stiffness: 320, damping: 26 }}
-              className="relative flex flex-1 flex-col items-center justify-end"
-              style={{ maxWidth: 44 }}
-            >
-              <div
-                className={cn(
-                  'w-full rounded-t-[3px] transition-colors duration-200',
-                  // Highlighted bars use their state color; otherwise the bar is
-                  // tinted by its value so the columns read as a vivid gradient.
-                  kind && HIGHLIGHTS[kind].bar,
-                  // A soft glow makes bars visibly "click" into place when settled.
-                  kind === 'sorted' && 'shadow-[0_0_10px_rgba(52,211,153,0.55)]'
-                )}
-                style={{
-                  height: `${Math.max(2, (value / max) * 100)}%`,
-                  ...(kind ? {} : { backgroundColor: valueColor(value, max) }),
-                }}
-              />
+            <div key={i} className="flex flex-1 flex-col" style={{ maxWidth: 44 }}>
+              {/* Bar area — flex-1 gives it a definite height so the bar's
+                  percentage height resolves correctly. */}
+              <div className="relative flex min-h-0 flex-1 items-end">
+                {pointers
+                  ?.filter((p) => p.index === i)
+                  .map((p) => (
+                    <span
+                      key={p.label}
+                      className="absolute left-1/2 top-0 -translate-x-1/2 rounded bg-brand px-1 text-[10px] font-semibold text-white"
+                    >
+                      {p.label}
+                    </span>
+                  ))}
+                <motion.div
+                  layout
+                  transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+                  className={cn(
+                    'w-full rounded-t-[3px] transition-colors duration-200',
+                    kind && HIGHLIGHTS[kind].bar,
+                    kind === 'sorted' && 'shadow-[0_0_10px_rgba(52,211,153,0.55)]'
+                  )}
+                  style={{
+                    height: `${Math.max(2, (value / max) * 100)}%`,
+                    ...(kind ? {} : { backgroundColor: valueColor(value, max) }),
+                  }}
+                />
+              </div>
               {showValues && (
-                <span className="mt-1 text-[10px] tabular-nums text-slate-400">{value}</span>
+                <span className="mt-1 text-center text-[10px] tabular-nums text-slate-400">{value}</span>
               )}
-              {pointers
-                ?.filter((p) => p.index === i)
-                .map((p) => (
-                  <span
-                    key={p.label}
-                    className="absolute -top-5 rounded bg-brand px-1 text-[10px] font-semibold text-white"
-                  >
-                    {p.label}
-                  </span>
-                ))}
-            </motion.div>
+            </div>
           );
         })}
       </div>
