@@ -56,4 +56,24 @@ export function buildAdjacency(): Record<string, string[]> {
   return adj;
 }
 
+/** Weighted, undirected adjacency: node -> list of [neighbor, weight]. */
+export function buildWeightedAdjacency(): Record<string, [string, number][]> {
+  const adj: Record<string, [string, number][]> = {};
+  for (const n of NODES) adj[n.id] = [];
+  for (const e of EDGES) {
+    adj[e.from].push([e.to, e.weight]);
+    adj[e.to].push([e.from, e.weight]);
+  }
+  for (const id of Object.keys(adj)) adj[id].sort((a, b) => a[0].localeCompare(b[0]));
+  return adj;
+}
+
 export const START_NODE = 'A';
+export const GOAL_NODE = 'I';
+
+/** Straight-line (Euclidean) heuristic between two nodes, for A*. */
+export function heuristic(a: string, b: string): number {
+  const na = NODES.find((n) => n.id === a)!;
+  const nb = NODES.find((n) => n.id === b)!;
+  return Math.round(Math.hypot(na.x - nb.x, na.y - nb.y) / 10);
+}

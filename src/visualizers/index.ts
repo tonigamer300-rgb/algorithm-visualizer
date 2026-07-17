@@ -9,5 +9,8 @@ import type { VisualizerComponent, VisualizerKind } from '@/types';
 export const VISUALIZERS: Record<VisualizerKind, LazyExoticComponent<VisualizerComponent>> = {
   array: lazy(() => import('./ArrayVisualizer')),
   graph: lazy(() => import('./GraphVisualizer')),
+  grid: lazy(() => import('./GridVisualizer')),
+  tree: lazy(() => import('./TreeVisualizer')),
+  hanoi: lazy(() => import('./HanoiVisualizer')),
   placeholder: lazy(() => import('./PlaceholderVisualizer')),
 };

@@ -9,15 +9,17 @@ import { cn } from '@/utils/cn';
  * node currently being processed.
  */
 function GraphVisualizer({ frame }: VisualizerProps) {
-  const { visited, frontier, current, path, description } = frame as GraphFrame;
+  const { visited, frontier, current, path, description, distances, markedEdges } =
+    frame as GraphFrame;
   const visitedSet = new Set(visited);
   const frontierSet = new Set(frontier);
   const pathSet = new Set(path);
+  const marked = new Set((markedEdges ?? []).map(([a, b]) => [a, b].sort().join('-')));
 
   const pos = (id: string) => NODES.find((n) => n.id === id)!;
 
   const edgeActive = (a: string, b: string) =>
-    pathSet.has(a) && pathSet.has(b);
+    marked.has([a, b].sort().join('-')) || (markedEdges === undefined && pathSet.has(a) && pathSet.has(b));
 
   return (
     <div className="flex h-full flex-col">
@@ -78,6 +80,17 @@ function GraphVisualizer({ frame }: VisualizerProps) {
               >
                 {n.id}
               </text>
+              {distances && (
+                <text
+                  x={n.x}
+                  y={n.y - 5.4}
+                  textAnchor="middle"
+                  className="fill-amber-300 font-semibold"
+                  style={{ fontSize: 2.8 }}
+                >
+                  {distances[n.id] === null || distances[n.id] === undefined ? '∞' : distances[n.id]}
+                </text>
+              )}
             </motion.g>
           );
         })}

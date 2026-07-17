@@ -80,10 +80,72 @@ export interface GraphFrame {
   current: string | null;
   path: string[];
   description: string;
+  /** Optional per-node distance/cost labels (Dijkstra, Bellman-Ford, A*). */
+  distances?: Record<string, number | null>;
+  /** Optional highlighted edges, e.g. MST edges for Prim/Kruskal. */
+  markedEdges?: [string, string][];
+}
+
+/** Cell states shared by the grid/matrix visualizer (DP tables, boards, mazes). */
+export type CellState =
+  | 'active'
+  | 'compare'
+  | 'chosen'
+  | 'best'
+  | 'conflict'
+  | 'path'
+  | 'wall'
+  | 'visited'
+  | 'fixed'
+  | 'start'
+  | 'goal';
+
+export interface GridCell {
+  value: string | number;
+  state?: CellState;
+}
+
+/** One rendered step for grid/matrix algorithms (DP, backtracking, Floyd-Warshall). */
+export interface GridFrame {
+  grid: GridCell[][];
+  rowLabels?: string[];
+  colLabels?: string[];
+  /** Optional short caption above the grid (e.g. "dp[i][w]"). */
+  caption?: string;
+  /** Draw thicker separators every N columns/rows (e.g. Sudoku 3×3 boxes). */
+  boxSize?: number;
+  description: string;
+}
+
+export type TreeNodeState = 'active' | 'compare' | 'visited' | 'placed' | 'return' | 'path';
+
+export interface TreeNodeView {
+  id: string;
+  label: string;
+  x: number;
+  y: number;
+  state?: TreeNodeState;
+  /** For red-black trees. */
+  color?: 'red' | 'black';
+}
+
+/** One rendered step for tree structures and recursion call trees. */
+export interface TreeFrame {
+  nodes: TreeNodeView[];
+  edges: { from: string; to: string }[];
+  description: string;
+}
+
+/** One rendered step for the Towers of Hanoi. */
+export interface HanoiFrame {
+  /** Three pegs, each a stack of disk sizes from bottom to top. */
+  pegs: number[][];
+  moving: number | null;
+  description: string;
 }
 
 /** Union of every frame shape a visualizer may consume. */
-export type Frame = ArrayFrame | GraphFrame;
+export type Frame = ArrayFrame | GraphFrame | GridFrame | TreeFrame | HanoiFrame;
 
 /**
  * Props every visualizer component receives. `frame` is the currently selected
@@ -102,7 +164,7 @@ export interface VisualizerProps<F extends Frame = Frame> {
  * shared per data-shape (rather than per algorithm) to avoid duplication, and
  * are lazy-loaded so only the one in use ships to the browser.
  */
-export type VisualizerKind = 'array' | 'graph' | 'placeholder';
+export type VisualizerKind = 'array' | 'graph' | 'grid' | 'tree' | 'hanoi' | 'placeholder';
 
 /** Contract implemented by every algorithm module so it can be registered. */
 export interface AlgorithmModule {
