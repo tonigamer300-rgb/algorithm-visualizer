@@ -33,7 +33,7 @@ function dijkstraFrames(): GraphFrame[] {
     description: `Start at ${START_NODE} (distance 0); every other node is ∞.`,
   });
 
-  while (true) {
+  for (;;) {
     let u: string | null = null;
     let best = Infinity;
     for (const id of ALL_IDS) {
