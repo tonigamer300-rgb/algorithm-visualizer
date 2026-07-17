@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Raw channels drive Tailwind's brand color (rgb(var(--brand-rgb) / alpha)). */
+  --brand-rgb: 59 130 246;
+  /* Hex form for effects that need a plain color (e.g. box-shadow glow). */
+  --brand: #3b82f6;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-surface-950 text-slate-200 antialiased;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+/* Respect the user's reduced-motion preference and the in-app toggle. */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+@layer components {
+  .glass {
+    @apply border border-white/10 bg-white/5 backdrop-blur-xl;
+  }
+
+  .card {
+    @apply rounded-2xl border border-white/10 bg-surface-800/60 shadow-card backdrop-blur-sm;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium
+      transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/60
+      disabled:cursor-not-allowed disabled:opacity-40;
+  }
+
+  .btn-primary {
+    @apply btn bg-brand text-white hover:brightness-110 hover:shadow-glow;
+  }
+
+  .btn-ghost {
+    @apply btn border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10;
+  }
+
+  .btn-icon {
+    @apply btn h-10 w-10 border border-white/10 bg-white/5 p-0 text-slate-200 hover:bg-white/10;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5
+      text-xs font-medium text-slate-300;
+  }
+}
+
+/* Custom scrollbar for a more polished, app-like feel. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-white/10;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-white/20;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Prism syntax highlighting theme (custom, dark, brand-aware). */
+code[class*='language-'],
+pre[class*='language-'] {
+  @apply font-mono text-sm leading-relaxed text-slate-200;
+  tab-size: 2;
+}
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  @apply text-slate-500;
+}
+.token.punctuation {
+  @apply text-slate-400;
+}
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: #f472b6;
+}
+.token.boolean,
+.token.number {
+  color: #fbbf24;
+}
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: #34d399;
+}
+.token.operator,
+.token.entity,
+.token.url {
+  @apply text-slate-300;
+}
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #60a5fa;
+}
+.token.function,
+.token.class-name {
+  color: #93c5fd;
+}

@@ -1,0 +1,80 @@
+import { motion } from 'framer-motion';
+import type { ArrayFrame, HighlightKind, VisualizerProps } from '@/types';
+import { cn } from '@/utils/cn';
+
+/** Color + label for each highlight state, shown in the on-canvas legend. */
+const HIGHLIGHTS: Record<HighlightKind, { bar: string; label: string }> = {
+  compare: { bar: 'bg-amber-400', label: 'Comparing' },
+  swap: { bar: 'bg-rose-500', label: 'Swapping' },
+  sorted: { bar: 'bg-emerald-500', label: 'Sorted' },
+  pivot: { bar: 'bg-fuchsia-500', label: 'Pivot' },
+  active: { bar: 'bg-sky-400', label: 'Active' },
+  found: { bar: 'bg-emerald-400', label: 'Found' },
+  range: { bar: 'bg-brand/70', label: 'Search range' },
+  min: { bar: 'bg-purple-400', label: 'Current min' },
+};
+
+function ArrayVisualizer({ frame }: VisualizerProps) {
+  const { array, highlights, pointers, description } = frame as ArrayFrame;
+  const max = Math.max(1, ...array);
+  const showValues = array.length <= 32;
+
+  // Only surface legend entries that are actually present in this frame.
+  const usedKinds = Array.from(new Set(Object.values(highlights))) as HighlightKind[];
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex flex-1 items-end justify-center gap-[2px] px-2 pb-2 sm:gap-1">
+        {array.map((value, i) => {
+          const kind = highlights[i];
+          return (
+            <motion.div
+              key={i}
+              layout
+              transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+              className="relative flex flex-1 flex-col items-center justify-end"
+              style={{ maxWidth: 44 }}
+            >
+              <div
+                className={cn(
+                  'w-full rounded-t-md transition-colors duration-150',
+                  kind ? HIGHLIGHTS[kind].bar : 'bg-slate-600'
+                )}
+                style={{ height: `${(value / max) * 100}%` }}
+              />
+              {showValues && (
+                <span className="mt-1 text-[10px] tabular-nums text-slate-400">{value}</span>
+              )}
+              {pointers
+                ?.filter((p) => p.index === i)
+                .map((p) => (
+                  <span
+                    key={p.label}
+                    className="absolute -top-5 rounded bg-brand px-1 text-[10px] font-semibold text-white"
+                  >
+                    {p.label}
+                  </span>
+                ))}
+            </motion.div>
+          );
+        })}
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 px-3 pt-2">
+        <p className="text-sm text-slate-300">{description}</p>
+        {usedKinds.length > 0 && (
+          <div className="flex flex-wrap gap-3">
+            {usedKinds.map((k) => (
+              <span key={k} className="flex items-center gap-1 text-xs text-slate-400">
+                <span className={cn('h-2.5 w-2.5 rounded-sm', HIGHLIGHTS[k].bar)} />
+                {HIGHLIGHTS[k].label}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default ArrayVisualizer;
